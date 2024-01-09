@@ -11,4 +11,7 @@ export const pool = new Pool({
   database: env.POSTGRES_DB,
 });
 
-export const database = drizzle(pool, { schema });
+export const database = drizzle(pool, {
+  schema,
+  logger: env.NODE_ENV === "development",
+});
