@@ -4,7 +4,7 @@ import { UsersRepositoryInMemory } from "@/infra/database/repositories/users-rep
 import { UserAlreadyExistsException } from "../exceptions/user-already-exists.exception";
 
 const sampleUser: RegisterUseCaseParams = {
-  email: "example.com",
+  email: "john@example.com",
   name: "John Doe",
   password: "12345678",
 };
