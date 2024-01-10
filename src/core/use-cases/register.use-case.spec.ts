@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
+
 import { RegisterUseCase, RegisterUseCaseParams } from "./register.use-case";
-import { UsersRepositoryInMemory } from "@/infra/database/repositories/users-repository.in-memory";
 import { UserAlreadyExistsException } from "../exceptions/user-already-exists.exception";
+
+import { UsersRepositoryInMemory } from "@/infra/database/repositories/users-repository.in-memory";
+import { BcryptService } from "@/infra/services/bcrypt.service";
 
 const sampleUser: RegisterUseCaseParams = {
   email: "john@example.com",
@@ -9,13 +12,15 @@ const sampleUser: RegisterUseCaseParams = {
   password: "12345678",
 };
 
+const encryptionService = new BcryptService();
+
 describe("RegisterUseCase", () => {
   let usersRepository: UsersRepositoryInMemory;
   let registerUseCase: RegisterUseCase;
 
   beforeEach(() => {
     usersRepository = new UsersRepositoryInMemory();
-    registerUseCase = new RegisterUseCase(usersRepository);
+    registerUseCase = new RegisterUseCase(usersRepository, encryptionService);
   });
 
   it("should be able to register a new user", async () => {
