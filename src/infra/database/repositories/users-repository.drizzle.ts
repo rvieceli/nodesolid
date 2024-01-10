@@ -3,26 +3,28 @@ import { database } from "..";
 import { users } from "../schema";
 import {
   CreateInput,
-  User,
   UsersRepository,
+  applyUserProxy,
 } from "@/core/repositories/users-repository";
 
 export class UsersRepositoryDrizzle implements UsersRepository {
-  async create(data: CreateInput): Promise<User> {
+  async create(data: CreateInput) {
     const [user] = await database
       .insert(users)
       .values(data)
       .returning()
       .execute();
 
-    return user;
+    return applyUserProxy(user);
   }
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string) {
     const user = await database.query.users.findFirst({
       where: eq(users.email, email),
     });
 
-    return user;
+    if (!user) return;
+
+    return applyUserProxy(user);
   }
 }

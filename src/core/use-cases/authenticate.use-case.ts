@@ -29,7 +29,7 @@ export class AuthenticateUseCase {
 
     const doesPasswordMatch = await this.encryptionService.verify(
       password,
-      user.password_hash,
+      user.unsafe_get_password_hash(),
     );
 
     if (!doesPasswordMatch) {

@@ -2,6 +2,7 @@ import {
   CreateInput,
   User,
   UsersRepository,
+  applyUserProxy,
 } from "@/core/repositories/users-repository";
 import { randomUUID } from "crypto";
 import { InMemory } from "./in-memory";
@@ -12,7 +13,7 @@ export class UsersRepositoryInMemory
 {
   private users: User[] = [];
 
-  async create(data: CreateInput): Promise<User> {
+  async create(data: CreateInput) {
     const user = {
       ...data,
       id: randomUUID(),
@@ -21,12 +22,14 @@ export class UsersRepositoryInMemory
 
     this.users.push(user);
 
-    return user;
+    return applyUserProxy(user);
   }
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string) {
     const user = this.users.find((user) => user.email === email);
 
-    return user;
+    if (!user) return;
+
+    return applyUserProxy(user);
   }
 }

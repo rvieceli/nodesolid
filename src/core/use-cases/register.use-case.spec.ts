@@ -43,7 +43,7 @@ describe("RegisterUseCase", () => {
     const { user } = await registerUseCase.handler(sampleUser);
 
     expect(user).not.toHaveProperty("password");
-    expect(user.password_hash).toBeDefined();
-    expect(user.password_hash).not.toBe(sampleUser.password);
+    expect(user.unsafe_get_password_hash()).toBeDefined();
+    expect(user.unsafe_get_password_hash()).not.toBe(sampleUser.password);
   });
 });
