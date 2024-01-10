@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { env } from "../../env";
+import { env } from "../env";
 import { appRoutes } from "./routes";
 import { ApplicationException } from "../../core/exceptions/application.exception";
 import { ZodError } from "zod";

@@ -1,5 +1,5 @@
 import { app } from "./infra/http/app";
-import { env } from "./env";
+import { env } from "./infra/env";
 import { migrateRun } from "./infra/database/migrate";
 
 async function start() {

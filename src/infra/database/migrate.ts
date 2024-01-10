@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/infra/env";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { join } from "node:path";
