@@ -5,7 +5,7 @@ export type CreateInput = {
   password_hash: string;
 };
 
-export interface User {
+export interface UserData {
   id: string;
   name: string;
   email: string;
@@ -13,13 +13,13 @@ export interface User {
   created_at: Date;
 }
 
-export type UserProxy = User & {
+export type UserProxy = UserData & {
   unsafe_get_password_hash(): string;
 };
 
-export function applyUserProxy(user: User) {
+export function applyUserProxy(user: UserData) {
   const proxy = new Proxy(user, {
-    get(target, prop: keyof User | "unsafe_get_password_hash") {
+    get(target, prop: keyof UserData | "unsafe_get_password_hash") {
       if (prop === "unsafe_get_password_hash") {
         return () => target.password_hash;
       }
@@ -27,7 +27,7 @@ export function applyUserProxy(user: User) {
       return target[prop];
     },
 
-    getOwnPropertyDescriptor(target, prop: keyof User) {
+    getOwnPropertyDescriptor(target, prop: keyof UserData) {
       if (prop === "password_hash") {
         return undefined;
       }
@@ -40,6 +40,7 @@ export function applyUserProxy(user: User) {
 }
 
 export interface UsersRepository {
-  create(data: CreateInput): Promise<UserProxy>;
-  findByEmail(email: string): Promise<UserProxy | undefined>;
+  create(data: CreateInput): Promise<UserData>;
+  findByEmail(email: string): Promise<UserData | undefined>;
+  findById(id: string): Promise<UserData | undefined>;
 }

@@ -1,8 +1,7 @@
 import {
   CreateInput,
-  User,
+  UserData,
   UsersRepository,
-  applyUserProxy,
 } from "@/core/repositories/users-repository";
 import { randomUUID } from "crypto";
 import { InMemory } from "./in-memory";
@@ -11,7 +10,7 @@ export class UsersRepositoryInMemory
   extends InMemory
   implements UsersRepository
 {
-  private users: User[] = [];
+  private users: UserData[] = [];
 
   async create(data: CreateInput) {
     const user = {
@@ -22,7 +21,7 @@ export class UsersRepositoryInMemory
 
     this.users.push(user);
 
-    return applyUserProxy(user);
+    return user;
   }
 
   async findByEmail(email: string) {
@@ -30,6 +29,6 @@ export class UsersRepositoryInMemory
 
     if (!user) return;
 
-    return applyUserProxy(user);
+    return user;
   }
 }

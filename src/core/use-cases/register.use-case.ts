@@ -1,8 +1,11 @@
-import { UsersRepository } from "../repositories/users-repository";
+import {
+  UsersRepository,
+  applyUserProxy,
+} from "../repositories/users-repository";
 import { UserAlreadyExistsException } from "../exceptions/user-already-exists.exception";
 import { EncryptionService } from "../services/encryption.service";
 
-export interface RegisterUseCaseParams {
+export interface RegisterUseCaseRequest {
   email: string;
   name: string;
   password: string;
@@ -14,7 +17,7 @@ export class RegisterUseCase {
     private encryptionService: EncryptionService,
   ) {}
 
-  async handler({ email, name, password }: RegisterUseCaseParams) {
+  async handler({ email, name, password }: RegisterUseCaseRequest) {
     const exists = await this.usersRepository.findByEmail(email);
 
     if (exists) {
@@ -29,6 +32,6 @@ export class RegisterUseCase {
       password_hash,
     });
 
-    return { user };
+    return { user: applyUserProxy(user) };
   }
 }

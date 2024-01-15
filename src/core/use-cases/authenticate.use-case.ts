@@ -1,5 +1,9 @@
 import { InvalidCredentialsException } from "../exceptions/invalid-credentials.exception";
-import { User, UsersRepository } from "../repositories/users-repository";
+import {
+  UserProxy,
+  UsersRepository,
+  applyUserProxy,
+} from "../repositories/users-repository";
 import { EncryptionService } from "../services/encryption.service";
 
 interface AuthenticateUseCaseRequest {
@@ -8,7 +12,7 @@ interface AuthenticateUseCaseRequest {
 }
 
 interface AuthenticateUseCaseResponse {
-  user: User;
+  user: UserProxy;
 }
 
 export class AuthenticateUseCase {
@@ -29,13 +33,13 @@ export class AuthenticateUseCase {
 
     const doesPasswordMatch = await this.encryptionService.verify(
       password,
-      user.unsafe_get_password_hash(),
+      user.password_hash,
     );
 
     if (!doesPasswordMatch) {
       throw new InvalidCredentialsException();
     }
 
-    return { user };
+    return { user: applyUserProxy(user) };
   }
 }
