@@ -31,4 +31,12 @@ export class UsersRepositoryInMemory
 
     return user;
   }
+
+  async findById(id: string) {
+    const user = this.users.find((user) => user.id === id);
+
+    if (!user) return;
+
+    return user;
+  }
 }
