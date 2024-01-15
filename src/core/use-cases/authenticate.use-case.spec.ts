@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { UsersRepository } from "../repositories/users-repository";
+import { UsersRepository } from "../repositories/users.repository";
 import { UsersRepositoryInMemory } from "@/infra/database/repositories/users-repository.in-memory";
 import { AuthenticateUseCase } from "./authenticate.use-case";
 import { RegisterUseCase } from "./register.use-case";

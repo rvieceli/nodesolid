@@ -2,7 +2,7 @@ import {
   CreateInput,
   UserData,
   UsersRepository,
-} from "@/core/repositories/users-repository";
+} from "@/core/repositories/users.repository";
 import { randomUUID } from "crypto";
 import { InMemory } from "./in-memory";
 

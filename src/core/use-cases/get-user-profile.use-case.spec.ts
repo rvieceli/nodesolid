@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { UsersRepository } from "../repositories/users-repository";
+import { UsersRepository } from "../repositories/users.repository";
 import { RegisterUseCase } from "./register.use-case";
 import { UsersRepositoryInMemory } from "@/infra/database/repositories/users-repository.in-memory";
 import { BcryptService } from "@/infra/services/bcrypt.service";

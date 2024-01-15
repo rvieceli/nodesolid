@@ -3,7 +3,7 @@ import {
   UserProxy,
   UsersRepository,
   applyUserProxy,
-} from "../repositories/users-repository";
+} from "../repositories/users.repository";
 
 interface GetUserProfileUseCaseResponse {
   user: UserProxy;

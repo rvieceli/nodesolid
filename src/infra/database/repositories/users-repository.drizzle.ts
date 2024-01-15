@@ -5,7 +5,7 @@ import {
   CreateInput,
   UserData,
   UsersRepository,
-} from "@/core/repositories/users-repository";
+} from "@/core/repositories/users.repository";
 
 export class UsersRepositoryDrizzle implements UsersRepository {
   async create(data: CreateInput): Promise<UserData> {

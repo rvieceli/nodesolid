@@ -1,7 +1,7 @@
 import {
   UsersRepository,
   applyUserProxy,
-} from "../repositories/users-repository";
+} from "../repositories/users.repository";
 import { UserAlreadyExistsException } from "../exceptions/user-already-exists.exception";
 import { EncryptionService } from "../services/encryption.service";
 
