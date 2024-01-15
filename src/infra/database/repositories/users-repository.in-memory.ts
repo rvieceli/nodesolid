@@ -16,7 +16,7 @@ export class UsersRepositoryInMemory
     const user = {
       ...data,
       id: randomUUID(),
-      created_at: new Date(),
+      createdAt: new Date(),
     };
 
     this.users.push(user);

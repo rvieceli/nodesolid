@@ -2,33 +2,33 @@ export type CreateInput = {
   id?: string | undefined;
   name: string;
   email: string;
-  password_hash: string;
+  passwordHash: string;
 };
 
 export interface UserData {
   id: string;
   name: string;
   email: string;
-  password_hash: string;
-  created_at: Date;
+  passwordHash: string;
+  createdAt: Date;
 }
 
 export type UserProxy = UserData & {
-  unsafe_get_password_hash(): string;
+  unsafe_getPasswordHash(): string;
 };
 
 export function applyUserProxy(user: UserData) {
   const proxy = new Proxy(user, {
-    get(target, prop: keyof UserData | "unsafe_get_password_hash") {
-      if (prop === "unsafe_get_password_hash") {
-        return () => target.password_hash;
+    get(target, prop: keyof UserData | "unsafe_getPasswordHash") {
+      if (prop === "unsafe_getPasswordHash") {
+        return () => target.passwordHash;
       }
 
       return target[prop];
     },
 
     getOwnPropertyDescriptor(target, prop: keyof UserData) {
-      if (prop === "password_hash") {
+      if (prop === "passwordHash") {
         return undefined;
       }
 

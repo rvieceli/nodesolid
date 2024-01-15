@@ -14,9 +14,9 @@ export const users = pgTable("users", {
     .$defaultFn(() => randomUUID()),
   name: varchar("name").notNull(),
   email: varchar("email").notNull().unique(),
-  password_hash: varchar("password_hash").notNull(),
+  passwordHash: varchar("password_hash").notNull(),
 
-  created_at: timestamp("created_at", { withTimezone: true })
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });
@@ -45,26 +45,26 @@ export const events = pgTable("events", {
   id: uuid("id")
     .primaryKey()
     .$defaultFn(() => randomUUID()),
-  user_id: uuid("user_id")
+  userId: uuid("user_id")
     .references(() => users.id, { onDelete: "restrict" })
     .notNull(),
-  location_id: uuid("location_id")
+  locationId: uuid("location_id")
     .references(() => locations.id, { onDelete: "restrict" })
     .notNull(),
-  created_at: timestamp("created_at", { withTimezone: true })
+  createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 
-  validated_at: timestamp("validated_at", { withTimezone: true }),
+  validatedAt: timestamp("validated_at", { withTimezone: true }),
 });
 
 export const eventsRelations = relations(events, ({ one }) => ({
   user: one(users, {
-    fields: [events.user_id],
+    fields: [events.userId],
     references: [users.id],
   }),
   locations: one(locations, {
-    fields: [events.location_id],
+    fields: [events.locationId],
     references: [locations.id],
   }),
 }));

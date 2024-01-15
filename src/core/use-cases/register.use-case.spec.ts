@@ -23,7 +23,7 @@ describe("RegisterUseCase", () => {
 
     expect(user).toBeDefined();
     expect(user.id).toBeDefined();
-    expect(user.created_at).toBeInstanceOf(Date);
+    expect(user.createdAt).toBeInstanceOf(Date);
   });
 
   it("should not be able to register a new user with an email already in use", async () => {
@@ -38,8 +38,8 @@ describe("RegisterUseCase", () => {
     const { user } = await registerUseCase.handler(REGISTER_USER_SAMPLE);
 
     expect(user).not.toHaveProperty("password");
-    expect(user.unsafe_get_password_hash()).toBeDefined();
-    expect(user.unsafe_get_password_hash()).not.toBe(
+    expect(user.unsafe_getPasswordHash()).toBeDefined();
+    expect(user.unsafe_getPasswordHash()).not.toBe(
       REGISTER_USER_SAMPLE.password,
     );
   });

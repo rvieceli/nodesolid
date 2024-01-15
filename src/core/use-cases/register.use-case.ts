@@ -24,12 +24,12 @@ export class RegisterUseCase {
       throw new UserAlreadyExistsException();
     }
 
-    const password_hash = await this.encryptionService.encrypt(password);
+    const passwordHash = await this.encryptionService.encrypt(password);
 
     const user = await this.usersRepository.create({
       email,
       name,
-      password_hash,
+      passwordHash,
     });
 
     return { user: applyUserProxy(user) };
