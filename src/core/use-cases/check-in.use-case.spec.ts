@@ -12,17 +12,17 @@ import { ResourceNotFoundException } from "../exceptions/resource-not-found.exce
 import { makeCreateLocationInput } from "./test-samples/location.samples";
 import { Point } from "../utils/get-distance-between-points";
 
-const locationGeolocation: Point = {
+const locationCoordinates: Point = {
   lat: -27.125803,
   lng: -109.4213865,
 };
 
-const geolocationWithin100MetersRadius: Point = {
+const coordinatesWithin100MetersRadius: Point = {
   lat: -27.126155774243696,
   lng: -109.42053861638183,
 };
 
-const geolocationOutside100MetersRadius: Point = {
+const coordinatesOutside100MetersRadius: Point = {
   lat: -27.1066108,
   lng: -109.2523168,
 };
@@ -40,8 +40,7 @@ describe("CheckInUseCase", () => {
 
     location = await locationsRepository.create(
       makeCreateLocationInput({
-        latitude: locationGeolocation.lat,
-        longitude: locationGeolocation.lng,
+        coordinates: locationCoordinates,
       }),
     );
 
@@ -56,7 +55,7 @@ describe("CheckInUseCase", () => {
     const { event } = await checkInUseCase.handler({
       userId: randomUUID(),
       locationId: location.id,
-      userLocation: geolocationWithin100MetersRadius,
+      userCoordinates: coordinatesWithin100MetersRadius,
     });
 
     expect(event).toBeDefined();
@@ -68,14 +67,14 @@ describe("CheckInUseCase", () => {
     await checkInUseCase.handler({
       userId,
       locationId: location.id,
-      userLocation: geolocationWithin100MetersRadius,
+      userCoordinates: coordinatesWithin100MetersRadius,
     });
 
     const rejected = expect(async () =>
       checkInUseCase.handler({
         userId,
         locationId: location.id,
-        userLocation: geolocationWithin100MetersRadius,
+        userCoordinates: coordinatesWithin100MetersRadius,
       }),
     ).rejects;
 
@@ -90,7 +89,7 @@ describe("CheckInUseCase", () => {
     const checkIn1 = await checkInUseCase.handler({
       userId,
       locationId: location.id,
-      userLocation: geolocationWithin100MetersRadius,
+      userCoordinates: coordinatesWithin100MetersRadius,
     });
 
     vi.setSystemTime(new Date(2023, 0, 15, 10, 0, 0));
@@ -98,7 +97,7 @@ describe("CheckInUseCase", () => {
     const checkIn2 = await checkInUseCase.handler({
       userId,
       locationId: location.id,
-      userLocation: geolocationWithin100MetersRadius,
+      userCoordinates: coordinatesWithin100MetersRadius,
     });
 
     expect(checkIn1).toBeDefined();
@@ -110,7 +109,7 @@ describe("CheckInUseCase", () => {
       checkInUseCase.handler({
         userId: randomUUID(),
         locationId: randomUUID(),
-        userLocation: geolocationWithin100MetersRadius,
+        userCoordinates: coordinatesWithin100MetersRadius,
       }),
     ).rejects;
 
@@ -123,7 +122,7 @@ describe("CheckInUseCase", () => {
       checkInUseCase.handler({
         userId: randomUUID(),
         locationId: location.id,
-        userLocation: geolocationOutside100MetersRadius,
+        userCoordinates: coordinatesOutside100MetersRadius,
       }),
     ).rejects.toThrowError(Error);
   });

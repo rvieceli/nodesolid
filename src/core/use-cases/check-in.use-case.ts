@@ -8,7 +8,7 @@ import { CheckInRecurrencePolicy } from "../policies/check-in-recurrence.policy"
 export interface CheckInUseCaseRequest {
   userId: string;
   locationId: string;
-  userLocation: Point;
+  userCoordinates: Point;
 }
 
 export class CheckInUseCase {
@@ -17,14 +17,18 @@ export class CheckInUseCase {
     private readonly locationsRepository: LocationsRepository,
   ) {}
 
-  async handler({ userId, locationId, userLocation }: CheckInUseCaseRequest) {
+  async handler({
+    userId,
+    locationId,
+    userCoordinates,
+  }: CheckInUseCaseRequest) {
     const location = await this.locationsRepository.findById(locationId);
 
     if (!location) {
       throw new ResourceNotFoundException("Location");
     }
 
-    if (!CheckInDistancePolicy.isAllowed(location, userLocation))
+    if (!CheckInDistancePolicy.isAllowed(location.coordinates, userCoordinates))
       throw new Error("User is too far from location");
 
     const checkInRecurrencePolicy = new CheckInRecurrencePolicy(

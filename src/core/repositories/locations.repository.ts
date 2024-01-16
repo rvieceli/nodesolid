@@ -1,11 +1,12 @@
+import { Point } from "../utils/get-distance-between-points";
+
 export type CreateLocationInput = {
   id?: string;
   name: string;
   address: string;
   description?: string;
   phone: string;
-  latitude: number;
-  longitude: number;
+  coordinates: Point;
 };
 
 export interface LocationData {
@@ -14,8 +15,7 @@ export interface LocationData {
   address: string;
   description?: string;
   phone: string;
-  latitude: number;
-  longitude: number;
+  coordinates: Point;
   createdAt: Date;
 }
 

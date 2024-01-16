@@ -1,4 +1,3 @@
-import { LocationData } from "../repositories/locations.repository";
 import {
   Point,
   getDistanceBetweenPoints,
@@ -7,12 +6,13 @@ import {
 export class CheckInDistancePolicy {
   static MAX_DISTANCE_IN_METERS = 100;
 
-  static isAllowed(location: LocationData, userLocation: Point): boolean {
-    const { latitude, longitude } = location;
-
+  static isAllowed(
+    locationCoordinates: Point,
+    userCoordinates: Point,
+  ): boolean {
     const distanceInMeters = getDistanceBetweenPoints(
-      userLocation,
-      [latitude, longitude],
+      locationCoordinates,
+      userCoordinates,
       "meters",
     );
 

@@ -1,5 +1,13 @@
 import { CreateLocationInput } from "@/core/repositories/locations.repository";
+import { Point } from "@/core/utils/get-distance-between-points";
 import { faker } from "@faker-js/faker";
+
+export function makeLocation(): Point {
+  return {
+    lng: faker.location.longitude(),
+    lat: faker.location.latitude(),
+  };
+}
 
 export function makeCreateLocationInput(
   overwrite?: Partial<CreateLocationInput>,
@@ -9,8 +17,7 @@ export function makeCreateLocationInput(
     address: faker.location.streetAddress(),
     phone: faker.phone.number(),
     description: faker.lorem.paragraph(),
-    longitude: faker.location.longitude(),
-    latitude: faker.location.latitude(),
+    coordinates: makeLocation(),
     ...overwrite,
   };
 }
