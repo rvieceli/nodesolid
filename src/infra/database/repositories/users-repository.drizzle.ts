@@ -2,13 +2,13 @@ import { eq } from "drizzle-orm";
 import { database } from "..";
 import { users } from "../schema";
 import {
-  CreateInput,
+  CreateUserInput,
   UserData,
   UsersRepository,
 } from "@/core/repositories/users.repository";
 
 export class UsersRepositoryDrizzle implements UsersRepository {
-  async create(data: CreateInput): Promise<UserData> {
+  async create(data: CreateUserInput): Promise<UserData> {
     const [user] = await database
       .insert(users)
       .values(data)

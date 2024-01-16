@@ -1,4 +1,4 @@
-export type CreateInput = {
+export type CreateUserInput = {
   id?: string | undefined;
   name: string;
   email: string;
@@ -40,7 +40,7 @@ export function applyUserProxy(user: UserData) {
 }
 
 export interface UsersRepository {
-  create(data: CreateInput): Promise<UserData>;
+  create(data: CreateUserInput): Promise<UserData>;
   findByEmail(email: string): Promise<UserData | undefined>;
   findById(id: string): Promise<UserData | undefined>;
 }

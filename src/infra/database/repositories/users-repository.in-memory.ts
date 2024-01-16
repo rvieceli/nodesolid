@@ -1,5 +1,5 @@
 import {
-  CreateInput,
+  CreateUserInput,
   UserData,
   UsersRepository,
 } from "@/core/repositories/users.repository";
@@ -12,10 +12,10 @@ export class UsersRepositoryInMemory
 {
   private users: UserData[] = [];
 
-  async create(data: CreateInput) {
+  async create(data: CreateUserInput) {
     const user = {
-      ...data,
       id: randomUUID(),
+      ...data,
       createdAt: new Date(),
     };
 
@@ -25,18 +25,10 @@ export class UsersRepositoryInMemory
   }
 
   async findByEmail(email: string) {
-    const user = this.users.find((user) => user.email === email);
-
-    if (!user) return;
-
-    return user;
+    return this.users.find((user) => user.email === email);
   }
 
   async findById(id: string) {
-    const user = this.users.find((user) => user.id === id);
-
-    if (!user) return;
-
-    return user;
+    return this.users.find((user) => user.id === id);
   }
 }

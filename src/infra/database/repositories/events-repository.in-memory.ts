@@ -1,5 +1,5 @@
 import {
-  CreateInput,
+  CreateEventInput,
   EventData,
   EventsRepository,
   DateTimeRange,
@@ -13,11 +13,11 @@ export class EventsRepositoryInMemory
 {
   private events: EventData[] = [];
 
-  async create(data: CreateInput) {
+  async create(data: CreateEventInput) {
     const event = {
-      ...data,
       id: randomUUID(),
       validatedAt: null,
+      ...data,
       createdAt: new Date(),
     };
 
@@ -30,13 +30,11 @@ export class EventsRepositoryInMemory
     userId: string,
     range: DateTimeRange,
   ): Promise<EventData[]> {
-    const events = this.events.filter(
+    return this.events.filter(
       (event) =>
         event.userId === userId &&
         event.createdAt >= range.start &&
         event.createdAt <= range.end,
     );
-
-    return events;
   }
 }

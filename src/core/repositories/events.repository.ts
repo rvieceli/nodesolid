@@ -1,4 +1,5 @@
-export type CreateInput = {
+export type CreateEventInput = {
+  id?: string;
   userId: string;
   locationId: string;
 };
@@ -17,7 +18,7 @@ export interface EventData {
 }
 
 export interface EventsRepository {
-  create(data: CreateInput): Promise<EventData>;
+  create(data: CreateEventInput): Promise<EventData>;
   findByUserIdWithinDateRange(
     userId: string,
     range: DateTimeRange,
