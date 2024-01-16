@@ -1,3 +1,5 @@
+import { PaginatedRequest, PaginatedResponse } from "../utils/pagination";
+
 export type CreateEventInput = {
   id?: string;
   userId: string;
@@ -23,4 +25,8 @@ export interface EventsRepository {
     userId: string,
     range: DateTimeRange,
   ): Promise<EventData[]>;
+  findByUserIdPaginated(
+    userId: string,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<EventData>>;
 }

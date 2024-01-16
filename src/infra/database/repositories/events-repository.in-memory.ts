@@ -6,6 +6,7 @@ import {
 } from "@/core/repositories/events.repository";
 import { randomUUID } from "crypto";
 import { InMemory } from "./in-memory";
+import { PaginatedRequest, PaginatedResponse } from "@/core/utils/pagination";
 
 export class EventsRepositoryInMemory
   extends InMemory
@@ -36,5 +37,24 @@ export class EventsRepositoryInMemory
         event.createdAt >= range.start &&
         event.createdAt <= range.end,
     );
+  }
+
+  async findByUserIdPaginated(
+    userId: string,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<EventData>> {
+    const allUserEvents = this.events
+      .filter((event) => event.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const items = allUserEvents.slice(...this.paginationToSlice(pagination));
+
+    return {
+      items,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      total: allUserEvents.length,
+      totalPages: Math.ceil(allUserEvents.length / pagination.pageSize),
+    };
   }
 }
