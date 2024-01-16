@@ -57,4 +57,11 @@ export class EventsRepositoryInMemory
       totalPages: Math.ceil(allUserEvents.length / pagination.pageSize),
     };
   }
+
+  async countByUserId(userId: string): Promise<number> {
+    return this.events.reduce(
+      (acc, event) => (event.userId === userId ? acc + 1 : acc),
+      0,
+    );
+  }
 }

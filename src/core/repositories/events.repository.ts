@@ -29,4 +29,5 @@ export interface EventsRepository {
     userId: string,
     pagination: PaginatedRequest,
   ): Promise<PaginatedResponse<EventData>>;
+  countByUserId(userId: string): Promise<number>;
 }
