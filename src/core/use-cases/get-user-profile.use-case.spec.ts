@@ -33,12 +33,12 @@ describe("GetUserProfileUseCase", () => {
   });
 
   it("should throw an exception if the user does not exist", async () => {
-    const rejection = expect(() =>
+    const rejected = expect(async () =>
       getUserProfileUseCase.handler(randomUUID()),
     ).rejects;
 
-    rejection.toBeInstanceOf(ResourceNotFoundException);
-    rejection.toHaveProperty("resource", "User");
+    rejected.toBeInstanceOf(ResourceNotFoundException);
+    rejected.toThrowError(new ResourceNotFoundException("User"));
   });
 
   it("should not leak password or password_hash when registering a new user", async () => {
