@@ -11,6 +11,8 @@ import { LocationsRepositoryInMemory } from "@/infra/database/repositories/locat
 import { ResourceNotFoundException } from "../exceptions/resource-not-found.exception";
 import { makeCreateLocationInput } from "./test-samples/location.samples";
 import { Point } from "../utils/get-distance-between-points";
+import { TooFarAwayException } from "../exceptions/too-far-away.exception";
+import { RecurrenceException } from "../exceptions/recurrence.exception";
 
 const locationCoordinates: Point = {
   lat: -27.125803,
@@ -78,7 +80,7 @@ describe("CheckInUseCase", () => {
       }),
     ).rejects;
 
-    rejected.toThrowError(Error);
+    rejected.toThrowError(RecurrenceException);
   });
 
   it("should be possible to check in twice in different days", async () => {
@@ -124,6 +126,6 @@ describe("CheckInUseCase", () => {
         locationId: location.id,
         userCoordinates: coordinatesOutside100MetersRadius,
       }),
-    ).rejects.toThrowError(Error);
+    ).rejects.toThrowError(TooFarAwayException);
   });
 });

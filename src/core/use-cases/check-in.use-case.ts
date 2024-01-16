@@ -4,6 +4,8 @@ import { ResourceNotFoundException } from "../exceptions/resource-not-found.exce
 import { Point } from "../utils/get-distance-between-points";
 import { CheckInDistancePolicy } from "../policies/check-in-distance.policy";
 import { CheckInRecurrencePolicy } from "../policies/check-in-recurrence.policy";
+import { TooFarAwayException } from "../exceptions/too-far-away.exception";
+import { RecurrenceException } from "../exceptions/recurrence.exception";
 
 export interface CheckInUseCaseRequest {
   userId: string;
@@ -29,7 +31,7 @@ export class CheckInUseCase {
     }
 
     if (!CheckInDistancePolicy.isAllowed(location.coordinates, userCoordinates))
-      throw new Error("User is too far from location");
+      throw new TooFarAwayException();
 
     const checkInRecurrencePolicy = new CheckInRecurrencePolicy(
       this.eventsRepository,
@@ -37,7 +39,7 @@ export class CheckInUseCase {
 
     const canUserCheckInToday = await checkInRecurrencePolicy.isAllowed(userId);
 
-    if (!canUserCheckInToday) throw new Error("User already checked in today");
+    if (!canUserCheckInToday) throw new RecurrenceException();
 
     const event = await this.eventsRepository.create({
       userId,
