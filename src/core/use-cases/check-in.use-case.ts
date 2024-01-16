@@ -1,35 +1,39 @@
-import {
-  DateTimeRange,
-  EventsRepository,
-} from "../repositories/events.repository";
-import dayjs from "dayjs";
+import { EventsRepository } from "../repositories/events.repository";
+import { LocationsRepository } from "../repositories/locations.repository";
+import { ResourceNotFoundException } from "../exceptions/resource-not-found.exception";
+import { Point } from "../utils/get-distance-between-points";
+import { CheckInDistancePolicy } from "../policies/check-in-distance.policy";
+import { CheckInRecurrencePolicy } from "../policies/check-in-recurrence.policy";
 
 export interface CheckInUseCaseRequest {
   userId: string;
   locationId: string;
+  userLocation: Point;
 }
 
 export class CheckInUseCase {
-  constructor(private eventsRepository: EventsRepository) {}
+  constructor(
+    private readonly eventsRepository: EventsRepository,
+    private readonly locationsRepository: LocationsRepository,
+  ) {}
 
-  async handler({ userId, locationId }: CheckInUseCaseRequest) {
-    const today = dayjs();
+  async handler({ userId, locationId, userLocation }: CheckInUseCaseRequest) {
+    const location = await this.locationsRepository.findById(locationId);
 
-    // might be a good idea to use timezone (of the User) here
-    const todayRange: DateTimeRange = {
-      start: today.startOf("day").toDate(),
-      end: today.endOf("day").toDate(),
-    };
-
-    const userCheckIns =
-      await this.eventsRepository.findByUserIdWithinDateRange(
-        userId,
-        todayRange,
-      );
-
-    if (userCheckIns.length > 0) {
-      throw new Error("User already checked in today");
+    if (!location) {
+      throw new ResourceNotFoundException("Location");
     }
+
+    if (!CheckInDistancePolicy.isAllowed(location, userLocation))
+      throw new Error("User is too far from location");
+
+    const checkInRecurrencePolicy = new CheckInRecurrencePolicy(
+      this.eventsRepository,
+    );
+
+    const canUserCheckInToday = await checkInRecurrencePolicy.isAllowed(userId);
+
+    if (!canUserCheckInToday) throw new Error("User already checked in today");
 
     const event = await this.eventsRepository.create({
       userId,

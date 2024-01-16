@@ -3,14 +3,47 @@ import { EventsRepository } from "../repositories/events.repository";
 import { EventsRepositoryInMemory } from "@/infra/database/repositories/events-repository.in-memory";
 import { CheckInUseCase } from "./check-in.use-case";
 import { randomUUID } from "node:crypto";
+import {
+  LocationData,
+  LocationsRepository,
+} from "../repositories/locations.repository";
+import { LocationsRepositoryInMemory } from "@/infra/database/repositories/locations-repository.in-memory";
+import { ResourceNotFoundException } from "../exceptions/resource-not-found.exception";
+import { makeCreateLocationInput } from "./test-samples/location.samples";
+import { Point } from "../utils/get-distance-between-points";
+
+const locationGeolocation: Point = {
+  lat: -27.125803,
+  lng: -109.4213865,
+};
+
+const geolocationWithin100MetersRadius: Point = {
+  lat: -27.126155774243696,
+  lng: -109.42053861638183,
+};
+
+const geolocationOutside100MetersRadius: Point = {
+  lat: -27.1066108,
+  lng: -109.2523168,
+};
 
 describe("CheckInUseCase", () => {
   let eventsRepository: EventsRepository;
+  let locationsRepository: LocationsRepository;
   let checkInUseCase: CheckInUseCase;
+  let location: LocationData;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     eventsRepository = new EventsRepositoryInMemory();
-    checkInUseCase = new CheckInUseCase(eventsRepository);
+    locationsRepository = new LocationsRepositoryInMemory();
+    checkInUseCase = new CheckInUseCase(eventsRepository, locationsRepository);
+
+    location = await locationsRepository.create(
+      makeCreateLocationInput({
+        latitude: locationGeolocation.lat,
+        longitude: locationGeolocation.lng,
+      }),
+    );
 
     vi.useFakeTimers();
   });
@@ -22,7 +55,8 @@ describe("CheckInUseCase", () => {
   it("should be able to check in", async () => {
     const { event } = await checkInUseCase.handler({
       userId: randomUUID(),
-      locationId: randomUUID(),
+      locationId: location.id,
+      userLocation: geolocationWithin100MetersRadius,
     });
 
     expect(event).toBeDefined();
@@ -31,10 +65,18 @@ describe("CheckInUseCase", () => {
   it("should not be possible to check in twice in the same day", async () => {
     const userId = randomUUID();
 
-    await checkInUseCase.handler({ userId, locationId: randomUUID() });
+    await checkInUseCase.handler({
+      userId,
+      locationId: location.id,
+      userLocation: geolocationWithin100MetersRadius,
+    });
 
     const rejected = expect(async () =>
-      checkInUseCase.handler({ userId, locationId: randomUUID() }),
+      checkInUseCase.handler({
+        userId,
+        locationId: location.id,
+        userLocation: geolocationWithin100MetersRadius,
+      }),
     ).rejects;
 
     rejected.toThrowError(Error);
@@ -47,17 +89,42 @@ describe("CheckInUseCase", () => {
 
     const checkIn1 = await checkInUseCase.handler({
       userId,
-      locationId: randomUUID(),
+      locationId: location.id,
+      userLocation: geolocationWithin100MetersRadius,
     });
 
     vi.setSystemTime(new Date(2023, 0, 15, 10, 0, 0));
 
     const checkIn2 = await checkInUseCase.handler({
       userId,
-      locationId: randomUUID(),
+      locationId: location.id,
+      userLocation: geolocationWithin100MetersRadius,
     });
 
     expect(checkIn1).toBeDefined();
     expect(checkIn2).toBeDefined();
+  });
+
+  it("should not be possible to check in if location does not exist", async () => {
+    const rejected = expect(async () =>
+      checkInUseCase.handler({
+        userId: randomUUID(),
+        locationId: randomUUID(),
+        userLocation: geolocationWithin100MetersRadius,
+      }),
+    ).rejects;
+
+    rejected.toBeInstanceOf(ResourceNotFoundException);
+    rejected.toThrowError(new ResourceNotFoundException("Location"));
+  });
+
+  it("should not be possible to check in if the location is more than 100m away", async () => {
+    await expect(() =>
+      checkInUseCase.handler({
+        userId: randomUUID(),
+        locationId: location.id,
+        userLocation: geolocationOutside100MetersRadius,
+      }),
+    ).rejects.toThrowError(Error);
   });
 });
