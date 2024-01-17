@@ -10,18 +10,24 @@ export class LocationsRepositoryInMemory
   extends InMemory
   implements LocationsRepository
 {
-  private items: LocationData[] = [];
+  private items: (LocationData & { search: string })[] = [];
 
   async create(data: CreateLocationInput) {
-    const user = {
+    const location = {
       id: randomUUID(),
       ...data,
+      search: this.generatedConcat(data, [
+        "name",
+        "address",
+        "description",
+        "phone",
+      ]),
       createdAt: new Date(),
     };
 
-    this.items.push(user);
+    this.items.push(location);
 
-    return user;
+    return location;
   }
 
   async findById(id: string) {

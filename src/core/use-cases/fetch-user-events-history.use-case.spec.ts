@@ -33,7 +33,11 @@ describe("FetchUserEventsHistoryUseCase", () => {
 
   it("should return an empty paginated list of events", async () => {
     const { items, page, pageSize, total, totalPages } =
-      await fetchUserEventsHistoryUseCase.handler(randomUUID(), 1, 10);
+      await fetchUserEventsHistoryUseCase.handler({
+        userId: randomUUID(),
+        page: 1,
+        pageSize: 10,
+      });
 
     expect(items).toHaveLength(0);
     expect(page).toBe(1);
@@ -59,7 +63,11 @@ describe("FetchUserEventsHistoryUseCase", () => {
     });
 
     const { items, page, pageSize, total, totalPages } =
-      await fetchUserEventsHistoryUseCase.handler(userId, 1, 10);
+      await fetchUserEventsHistoryUseCase.handler({
+        userId,
+        page: 1,
+        pageSize: 10,
+      });
 
     expect(items).toMatchObject([
       {
@@ -90,7 +98,11 @@ describe("FetchUserEventsHistoryUseCase", () => {
       });
     }
 
-    const page1 = await fetchUserEventsHistoryUseCase.handler(userId, 1, 10);
+    const page1 = await fetchUserEventsHistoryUseCase.handler({
+      userId,
+      page: 1,
+      pageSize: 10,
+    });
 
     expect(page1.items).toHaveLength(10);
     expect(page1.page).toBe(1);
@@ -98,7 +110,11 @@ describe("FetchUserEventsHistoryUseCase", () => {
     expect(page1.total).toBe(15);
     expect(page1.totalPages).toBe(2);
 
-    const page2 = await fetchUserEventsHistoryUseCase.handler(userId, 2, 10);
+    const page2 = await fetchUserEventsHistoryUseCase.handler({
+      userId,
+      page: 2,
+      pageSize: 10,
+    });
 
     expect(page2.items).toHaveLength(5);
     expect(page2.page).toBe(2);
@@ -112,7 +128,7 @@ describe("FetchUserEventsHistoryUseCase", () => {
     const pageSize = 100;
 
     await expect(
-      fetchUserEventsHistoryUseCase.handler(userId, 1, pageSize),
+      fetchUserEventsHistoryUseCase.handler({ userId, page: 1, pageSize }),
     ).rejects.toThrowError(PageSizeTooBigException);
   });
 });
