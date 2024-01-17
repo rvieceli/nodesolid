@@ -3,10 +3,12 @@ import {
   EventData,
   EventsRepository,
   DateTimeRange,
+  UpdateEventInput,
 } from "@/core/repositories/events.repository";
 import { randomUUID } from "crypto";
 import { InMemory } from "./in-memory";
 import { PaginatedRequest, PaginatedResponse } from "@/core/utils/pagination";
+import { ResourceNotFoundException } from "@/core/exceptions/resource-not-found.exception";
 
 export class EventsRepositoryInMemory
   extends InMemory
@@ -25,6 +27,22 @@ export class EventsRepositoryInMemory
     this.events.push(event);
 
     return event;
+  }
+
+  async updateById(id: string, data: UpdateEventInput): Promise<EventData> {
+    const event = await this.findById(id);
+
+    if (!event) {
+      throw new ResourceNotFoundException("Event");
+    }
+
+    Object.assign(event, data);
+
+    return event;
+  }
+
+  async findById(id: string): Promise<EventData | undefined> {
+    return this.events.find((event) => event.id === id);
   }
 
   async findByUserIdWithinDateRange(
