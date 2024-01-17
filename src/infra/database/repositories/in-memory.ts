@@ -12,4 +12,11 @@ export abstract class InMemory {
       pagination.page * pagination.pageSize,
     ];
   }
+
+  generatedConcat<T extends Record<string, unknown>>(
+    object: T,
+    columns: (keyof T)[],
+  ): string {
+    return columns.map((column) => object[column]).join(" | ");
+  }
 }
