@@ -27,4 +27,9 @@ export interface LocationsRepository {
     query: string,
     pagination: PaginatedRequest,
   ): Promise<PaginatedResponse<LocationData>>;
+  searchByProximityPaginated(
+    coordinates: Point,
+    distanceInKm: number,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<LocationData>>;
 }

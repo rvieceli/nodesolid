@@ -1,4 +1,4 @@
-import { PaginatedRequest } from "@/core/utils/pagination";
+import { PaginatedRequest, PaginatedResponse } from "@/core/utils/pagination";
 
 export abstract class InMemory {
   constructor() {
@@ -11,6 +11,21 @@ export abstract class InMemory {
       (pagination.page - 1) * pagination.pageSize,
       pagination.page * pagination.pageSize,
     ];
+  }
+
+  paginate<T>(
+    allItems: T[],
+    pagination: PaginatedRequest,
+  ): PaginatedResponse<T> {
+    const items = allItems.slice(...this.paginationToSlice(pagination));
+
+    return {
+      items,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      total: allItems.length,
+      totalPages: Math.ceil(allItems.length / pagination.pageSize),
+    };
   }
 
   generatedConcat<T extends Record<string, unknown>>(

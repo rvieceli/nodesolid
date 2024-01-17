@@ -6,6 +6,10 @@ import {
 import { randomUUID } from "crypto";
 import { InMemory } from "./in-memory";
 import { PaginatedRequest, PaginatedResponse } from "@/core/utils/pagination";
+import {
+  Point,
+  getDistanceBetweenPoints,
+} from "@/core/utils/get-distance-between-points";
 
 export class LocationsRepositoryInMemory
   extends InMemory
@@ -43,14 +47,23 @@ export class LocationsRepositoryInMemory
       location.search.toLowerCase().includes(query.toLowerCase()),
     );
 
-    const items = allItems.slice(...this.paginationToSlice(pagination));
+    return this.paginate(allItems, pagination);
+  }
 
-    return {
-      items,
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      total: allItems.length,
-      totalPages: Math.ceil(allItems.length / pagination.pageSize),
-    };
+  async searchByProximityPaginated(
+    coordinates: Point,
+    distanceInKm: number,
+    pagination: PaginatedRequest,
+  ): Promise<PaginatedResponse<LocationData>> {
+    const allItems = this.items.filter(
+      (location) =>
+        getDistanceBetweenPoints(
+          coordinates,
+          location.coordinates,
+          "kilometers",
+        ) <= distanceInKm,
+    );
+
+    return this.paginate(allItems, pagination);
   }
 }
