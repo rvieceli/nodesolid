@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
+import { customType } from "drizzle-orm/pg-core";
 import {
   pgTable,
   uuid,
@@ -7,6 +8,21 @@ import {
   decimal,
   timestamp,
 } from "drizzle-orm/pg-core";
+
+const generatedConcat = customType<{
+  data: string;
+  config: {
+    columns: string[];
+  };
+}>({
+  dataType(config) {
+    if (config?.columns === undefined) throw new Error("Columns is required");
+    const columns = config.columns
+      .map((column) => `coalesce(${column}, '')`)
+      .join(" || '|' || ");
+    return `text GENERATED ALWAYS AS (${columns}) STORED`;
+  },
+});
 
 export const users = pgTable("users", {
   id: uuid("id")
@@ -35,6 +51,12 @@ export const locations = pgTable("locations", {
   phone: varchar("phone").notNull(),
   latitude: decimal("latitude").notNull(),
   longitude: decimal("latitude").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  search: generatedConcat("search", {
+    columns: ["name", "address", "description", "phone"],
+  }),
 });
 
 export const locationsRelations = relations(locations, ({ many }) => ({

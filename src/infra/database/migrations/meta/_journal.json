@@ -15,6 +15,13 @@
       "when": 1705313871287,
       "tag": "0001_fearless_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1705496009331,
+      "tag": "0002_solid_monster_badoon",
+      "breakpoints": true
     }
   ]
 }
