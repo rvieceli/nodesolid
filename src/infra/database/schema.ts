@@ -50,7 +50,7 @@ export const locations = pgTable("locations", {
   description: varchar("description"),
   phone: varchar("phone").notNull(),
   latitude: decimal("latitude").notNull(),
-  longitude: decimal("latitude").notNull(),
+  longitude: decimal("longitude").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
