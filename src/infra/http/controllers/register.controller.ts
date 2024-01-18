@@ -1,7 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import z from "zod";
-import { UsersRepositoryDrizzle } from "@/infra/database/repositories/users-repository.drizzle";
-import { RegisterUseCase } from "@/core/use-cases/register.use-case";
+import { registerUserCaseFactory } from "@/core/use-cases/register.use-case.factory";
 
 const registerBodySchema = z
   .object({
@@ -20,8 +19,7 @@ curl http://127.0.0.1:3000/users -o - \
 export async function register(request: FastifyRequest, reply: FastifyReply) {
   const { email, name, password } = registerBodySchema.parse(request.body);
 
-  const usersRepository = new UsersRepositoryDrizzle();
-  const registerUseCase = new RegisterUseCase(usersRepository);
+  const registerUseCase = registerUserCaseFactory();
 
   await registerUseCase.handler({
     email,
