@@ -23,8 +23,6 @@ export class UsersRepositoryDrizzle implements UsersRepository {
       where: eq(users.email, email),
     });
 
-    if (!user) return;
-
     return user;
   }
 
@@ -32,8 +30,6 @@ export class UsersRepositoryDrizzle implements UsersRepository {
     const user = await database.query.users.findFirst({
       where: eq(users.id, id),
     });
-
-    if (!user) return;
 
     return user;
   }

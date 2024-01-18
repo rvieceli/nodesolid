@@ -5,7 +5,7 @@ export type CreateLocationInput = {
   id?: string;
   name: string;
   address: string;
-  description?: string;
+  description?: string | null;
   phone: string;
   coordinates: Point;
 };
@@ -14,7 +14,7 @@ export interface LocationData {
   id: string;
   name: string;
   address: string;
-  description?: string;
+  description?: string | null;
   phone: string;
   coordinates: Point;
   createdAt: Date;
