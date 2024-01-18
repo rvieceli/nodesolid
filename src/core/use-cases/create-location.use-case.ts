@@ -7,7 +7,7 @@ import { Point } from "../utils/get-distance-between-points";
 export interface CreateLocationUseCaseRequest {
   name: string;
   address: string;
-  description?: string;
+  description?: string | null;
   phone: string;
   coordinates: Point;
 }
