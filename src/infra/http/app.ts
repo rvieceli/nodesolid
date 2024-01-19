@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { env } from "../env";
 import { appRoutes } from "./routes";
 import { ApplicationException } from "@/core/exceptions/application.exception";
+import { pool } from "../database";
 
 export const app = Fastify({
   logger: env.NODE_ENV === "development",
@@ -17,6 +18,10 @@ app.register(fastifyJwt, {
   },
 });
 app.register(appRoutes);
+
+app.addHook("onClose", async () => {
+  await pool.end();
+});
 
 app.setErrorHandler(function (error, request, reply) {
   if (error instanceof ApplicationException) {

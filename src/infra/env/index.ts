@@ -26,4 +26,6 @@ if (!validation.success) {
   throw new Error("Failed to parse environment variables");
 }
 
+export type Env = z.infer<typeof envSchema>;
+
 export const env = validation.data;

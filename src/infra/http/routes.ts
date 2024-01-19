@@ -5,7 +5,7 @@ import { profile } from "./controllers/profile.controller";
 import { authGuardMiddleware } from "./middleware/auth.guard";
 
 export async function appRoutes(app: FastifyInstance) {
-  app.post("/users", register);
+  app.post("/register", register);
   app.post("/sessions", authenticate);
 
   app.register(authenticateRoutes);

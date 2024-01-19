@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+npm link ./src/infra/database/vitest-environment-database
+npm link vitest-environment-database

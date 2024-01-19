@@ -1,0 +1,12 @@
+{
+  "name": "vitest-environment-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "database-test-environment.ts",
+  "scripts": {
+    "link": "npm link"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
