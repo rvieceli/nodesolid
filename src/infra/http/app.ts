@@ -1,18 +1,26 @@
 import Fastify from "fastify";
+import fastifyJwt from "@fastify/jwt";
+import { ZodError } from "zod";
+
 import { env } from "../env";
 import { appRoutes } from "./routes";
-import { ApplicationException } from "../../core/exceptions/application.exception";
-import { ZodError } from "zod";
+import { ApplicationException } from "@/core/exceptions/application.exception";
 
 export const app = Fastify({
   logger: env.NODE_ENV === "development",
 });
 
+app.register(fastifyJwt, {
+  secret: env.JWT_SECRET,
+  sign: {
+    expiresIn: env.JWT_EXPIRES_IN,
+  },
+});
 app.register(appRoutes);
 
 app.setErrorHandler(function (error, request, reply) {
   if (error instanceof ApplicationException) {
-    this.log.info(error, "apllication-exception");
+    this.log.info(error, "application-exception");
 
     return reply //
       .status(error.statusCode)
