@@ -6,19 +6,19 @@ import {
 import { Point } from "../utils/get-distance-between-points";
 import { PaginatedRequest, PaginatedResponse } from "../utils/pagination";
 
-interface SearchNearByLocationsUseCaseRequest
+interface SearchNearbyLocationsUseCaseRequest
   extends Partial<PaginatedRequest> {
   coordinates: Point;
 }
 
-export class SearchNearByLocationsUseCase {
+export class SearchNearbyLocationsUseCase {
   constructor(private readonly locationsRepository: LocationsRepository) {}
 
   async handler({
     coordinates,
     page = 1,
     pageSize = PageSizePolicy.DEFAULT_PAGE_SIZE,
-  }: SearchNearByLocationsUseCaseRequest): Promise<
+  }: SearchNearbyLocationsUseCaseRequest): Promise<
     PaginatedResponse<LocationData>
   > {
     PageSizePolicy.isAllowedOrThrow(pageSize);

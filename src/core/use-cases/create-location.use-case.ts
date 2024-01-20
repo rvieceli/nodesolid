@@ -12,6 +12,10 @@ export interface CreateLocationUseCaseRequest {
   coordinates: Point;
 }
 
+export interface CreateLocationUseCaseResponse {
+  location: LocationData;
+}
+
 export class CreateLocationUseCase {
   constructor(private readonly locationsRepository: LocationsRepository) {}
 
@@ -21,7 +25,7 @@ export class CreateLocationUseCase {
     description,
     address,
     coordinates,
-  }: CreateLocationUseCaseRequest): Promise<LocationData> {
+  }: CreateLocationUseCaseRequest): Promise<CreateLocationUseCaseResponse> {
     const location = await this.locationsRepository.create({
       name,
       phone,
@@ -30,6 +34,6 @@ export class CreateLocationUseCase {
       coordinates,
     });
 
-    return location;
+    return { location };
   }
 }

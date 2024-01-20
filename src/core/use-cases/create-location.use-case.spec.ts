@@ -14,7 +14,7 @@ describe("CreateLocationUseCase", () => {
   });
 
   it("should be able to create a location", async () => {
-    const location = await createLocationUseCase.handler(
+    const { location } = await createLocationUseCase.handler(
       makeCreateLocationInput(),
     );
 

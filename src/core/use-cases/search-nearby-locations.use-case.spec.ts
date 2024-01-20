@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { LocationsRepository } from "../repositories/locations.repository";
 import { LocationsRepositoryInMemory } from "@/infra/database/repositories/locations-repository.in-memory";
-import { SearchNearByLocationsUseCase } from "./search-near-by-locations.use-case";
+import { SearchNearbyLocationsUseCase } from "./search-nearby-locations.use-case";
 import {
   makeCoordinates,
   makeCreateLocationInput,
@@ -9,13 +9,13 @@ import {
 import { Point } from "../utils/get-distance-between-points";
 import { PageSizeTooBigException } from "../exceptions/page-size-too-big.exception";
 
-describe("SearchNearByLocationsUseCase", () => {
+describe("SearchNearbyLocationsUseCase", () => {
   let locationsRepository: LocationsRepository;
-  let searchNearByLocationsUseCase: SearchNearByLocationsUseCase;
+  let searchNearbyLocationsUseCase: SearchNearbyLocationsUseCase;
 
   beforeEach(() => {
     locationsRepository = new LocationsRepositoryInMemory();
-    searchNearByLocationsUseCase = new SearchNearByLocationsUseCase(
+    searchNearbyLocationsUseCase = new SearchNearbyLocationsUseCase(
       locationsRepository,
     );
 
@@ -49,7 +49,7 @@ describe("SearchNearByLocationsUseCase", () => {
       }),
     );
 
-    const page = await searchNearByLocationsUseCase.handler({
+    const page = await searchNearbyLocationsUseCase.handler({
       coordinates: useCoordinates,
       page: 1,
       pageSize: 10,
@@ -72,7 +72,7 @@ describe("SearchNearByLocationsUseCase", () => {
     const pageSize = 100;
 
     await expect(
-      searchNearByLocationsUseCase.handler({
+      searchNearbyLocationsUseCase.handler({
         coordinates: makeCoordinates(),
         page: 1,
         pageSize,
