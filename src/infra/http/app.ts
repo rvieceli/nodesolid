@@ -3,9 +3,9 @@ import fastifyJwt from "@fastify/jwt";
 import { ZodError } from "zod";
 
 import { env } from "../env";
-import { appRoutes } from "./routes";
 import { ApplicationException } from "@/core/exceptions/application.exception";
 import { pool } from "../database";
+import { usersRoutes } from "./controllers/users/routes";
 
 export const app = Fastify({
   logger: env.NODE_ENV === "development",
@@ -17,7 +17,8 @@ app.register(fastifyJwt, {
     expiresIn: env.JWT_EXPIRES_IN,
   },
 });
-app.register(appRoutes);
+
+app.register(usersRoutes);
 
 app.addHook("onClose", async () => {
   await pool.end();

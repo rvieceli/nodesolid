@@ -13,5 +13,5 @@ export async function profile(request: FastifyRequest, reply: FastifyReply) {
 
   const { user } = await useCase.handler(userId);
 
-  return reply.status(201).send({ user });
+  return reply.status(200).send({ user });
 }
