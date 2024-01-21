@@ -1,6 +1,7 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../../app";
+import { createAndAuthenticateUser } from "../../test/create-and-authenticate-user.e2e";
 
 const userSample = {
   name: "John Doe",
@@ -18,25 +19,11 @@ describe("ProfileController", () => {
   });
 
   it("should be able to get user profile", async () => {
-    const response = await request(app.server)
-      .post("/register")
-      .send(userSample);
-
-    expect(response.status).toBe(201);
-
-    const responseAuth = await request(app.server).post("/sessions").send({
-      email: userSample.email,
-      password: userSample.password,
-    });
-
-    expect(responseAuth.status).toBe(201);
-    expect(responseAuth.body).toHaveProperty("token");
-
-    const token = responseAuth.body.token;
+    const authorization = await createAndAuthenticateUser(app, userSample);
 
     const responseProfile = await request(app.server)
       .get("/me")
-      .set("Authorization", `Bearer ${token}`);
+      .set("Authorization", authorization);
 
     expect(responseProfile.status).toBe(200);
     expect(responseProfile.body).toMatchObject({
