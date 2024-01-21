@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import fastifyJwt from "@fastify/jwt";
+import { fastifyJwt } from "@fastify/jwt";
 import { ZodError } from "zod";
 
 import { env } from "../env";
@@ -7,6 +7,7 @@ import { ApplicationException } from "@/core/exceptions/application.exception";
 import { pool } from "../database";
 import { locationsRoutes } from "./controllers/locations/routes";
 import { usersRoutes } from "./controllers/users/routes";
+import { eventsRoutes } from "./controllers/events/routes";
 
 export const app = Fastify({
   logger: env.NODE_ENV === "development",
@@ -21,6 +22,7 @@ app.register(fastifyJwt, {
 
 app.register(usersRoutes);
 app.register(locationsRoutes, { prefix: "/locations" });
+app.register(eventsRoutes, { prefix: "/events" });
 
 app.addHook("onClose", async () => {
   await pool.end();
