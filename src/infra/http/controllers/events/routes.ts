@@ -10,4 +10,5 @@ export async function eventsRoutes(app: FastifyInstance) {
   app.addHook("onRequest", authGuardMiddleware);
 
   app.post("/:locationId/check-in", create);
+  app.patch("/:eventId/validate", validate);
 }
