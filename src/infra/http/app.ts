@@ -5,6 +5,7 @@ import { ZodError } from "zod";
 import { env } from "../env";
 import { ApplicationException } from "@/core/exceptions/application.exception";
 import { pool } from "../database";
+import { locationsRoutes } from "./controllers/locations/routes";
 import { usersRoutes } from "./controllers/users/routes";
 
 export const app = Fastify({
@@ -19,6 +20,7 @@ app.register(fastifyJwt, {
 });
 
 app.register(usersRoutes);
+app.register(locationsRoutes, { prefix: "/locations" });
 
 app.addHook("onClose", async () => {
   await pool.end();
