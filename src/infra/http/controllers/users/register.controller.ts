@@ -2,13 +2,15 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import z from "zod";
 import { registerUserCaseFactory } from "@/core/use-cases/register.use-case.factory";
 
-const registerBodySchema = z
+const bodySchema = z
   .object({
     name: z.string(),
     email: z.string().email(),
     password: z.string().min(8),
   })
   .strict();
+
+export type BodySchema = z.infer<typeof bodySchema>;
 
 /** *
 curl http://127.0.0.1:3000/users -o - \
@@ -17,7 +19,7 @@ curl http://127.0.0.1:3000/users -o - \
   -d '{"name":"Rafael", "email":"rafael3@example.com","password":"12345678"}'
  */
 export async function register(request: FastifyRequest, reply: FastifyReply) {
-  const { email, name, password } = registerBodySchema.parse(request.body);
+  const { email, name, password } = bodySchema.parse(request.body);
 
   const registerUseCase = registerUserCaseFactory();
 

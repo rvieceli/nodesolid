@@ -2,12 +2,14 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import z from "zod";
 import { authenticateUserCaseFactory } from "@/core/use-cases/authenticate.use-case.factory";
 
-const authenticateBodySchema = z
+const bodySchema = z
   .object({
     email: z.string().email(),
     password: z.string().min(8),
   })
   .strict();
+
+export type BodySchema = z.infer<typeof bodySchema>;
 
 /**
 curl http://127.0.0.1:3000/sessions -o - \
@@ -20,7 +22,7 @@ export async function authenticate(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { email, password } = authenticateBodySchema.parse(request.body);
+  const { email, password } = bodySchema.parse(request.body);
 
   const authenticateUseCase = authenticateUserCaseFactory();
 

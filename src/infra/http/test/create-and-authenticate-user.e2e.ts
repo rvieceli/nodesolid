@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
-import request from "supertest";
+import { createFakeUserFactory } from "./fake-user.factory";
+import { createFakeAuthorizationFactory } from "./fake-authenticate.factory";
 
 export const userSample = {
   name: "John Doe",
@@ -11,19 +12,8 @@ export async function createAndAuthenticateUser(
   app: FastifyInstance,
   data?: typeof userSample,
 ) {
-  await request(app.server)
-    .post("/register")
-    .send({ ...userSample, ...data });
-
-  const response = await request(app.server)
-    .post("/sessions")
-    .send({
-      email: data?.email ?? userSample.email,
-      password: data?.password ?? userSample.password,
-    });
-
-  const { token } = response.body;
+  const user = await createFakeUserFactory(app)({ ...userSample, ...data });
+  const { token } = await createFakeAuthorizationFactory(app)(user);
   const authorization = `Bearer ${token}`;
-
   return authorization;
 }
