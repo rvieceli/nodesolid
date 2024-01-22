@@ -31,9 +31,20 @@ export async function authenticate(
     password,
   });
 
-  const token = await reply.jwtSign({ sub: user.id });
+  const [token, refreshToken] = await Promise.all([
+    reply.jwtSign({ sub: user.id }),
+    reply.refreshTokenJwtSign({ sub: user.id }),
+  ]);
 
-  return reply.status(201).send({
-    token,
-  });
+  return reply
+    .setCookie("refreshToken", refreshToken, {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    })
+    .status(201)
+    .send({
+      token,
+    });
 }

@@ -14,6 +14,8 @@ const envSchema = z.object({
   POSTGRES_PORT: z.coerce.number().default(5432),
   JWT_SECRET: z.string(),
   JWT_EXPIRES_IN: z.string().default("1h"),
+  JWT_REFRESH_SECRET: z.string(),
+  JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
 });
 
 const validation = envSchema.safeParse(process.env);

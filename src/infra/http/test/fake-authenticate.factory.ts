@@ -27,15 +27,15 @@ export function createFakeAuthorizationFactory(
   return async function (overwrite) {
     const params = fakeAuthenticateFactory(overwrite);
 
-    const { body } = await request(app.server).post("/sessions").send({
+    const response = await request(app.server).post("/sessions").send({
       email: params.email,
       password: params.password,
     });
 
-    const userId = jwtDecode(body.token).sub!;
+    const userId = jwtDecode(response.body.token).sub!;
 
     return {
-      token: body.token,
+      token: response.body.token,
       userId,
     };
   };

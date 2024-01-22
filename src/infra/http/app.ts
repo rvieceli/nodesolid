@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import { fastifyJwt } from "@fastify/jwt";
+import { fastifyCookie } from "@fastify/cookie";
 import { ZodError } from "zod";
 
 import { env } from "../env";
@@ -19,6 +20,20 @@ app.register(fastifyJwt, {
     expiresIn: env.JWT_EXPIRES_IN,
   },
 });
+
+app.register(fastifyJwt, {
+  namespace: "refreshToken",
+  secret: env.JWT_REFRESH_SECRET,
+  sign: {
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+  },
+  cookie: {
+    cookieName: "refreshToken",
+    signed: false,
+  },
+});
+
+app.register(fastifyCookie);
 
 app.register(usersRoutes);
 app.register(locationsRoutes, { prefix: "/locations" });

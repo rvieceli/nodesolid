@@ -1,16 +1,22 @@
 import request from "supertest";
+import TestAgent from "supertest/lib/agent";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../../app";
 
-const userSample = {
-  name: "John Doe",
-  email: "john@example.com",
-  password: "12345678",
-};
-
 describe("AuthenticateController", () => {
+  const email = "john@authenticate-controller.com";
+  const password = "12345678";
+  let agent: TestAgent;
+
   beforeAll(async () => {
     await app.ready();
+    agent = request(app.server);
+
+    await agent.post("/register").send({
+      name: "John Doe",
+      email,
+      password,
+    });
   });
 
   afterAll(async () => {
@@ -18,18 +24,27 @@ describe("AuthenticateController", () => {
   });
 
   it("should be able to authenticate", async () => {
-    const response = await request(app.server)
-      .post("/register")
-      .send(userSample);
-
-    expect(response.status).toBe(201);
-
-    const responseAuth = await request(app.server).post("/sessions").send({
-      email: userSample.email,
-      password: userSample.password,
+    const response = await agent.post("/sessions").send({
+      email,
+      password,
     });
 
-    expect(responseAuth.status).toBe(201);
-    expect(responseAuth.body).toHaveProperty("token");
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("token");
+    expect(response.get("Set-Cookie")).toEqual([
+      expect.stringContaining("refreshToken="),
+    ]);
+  });
+
+  it("should be return a cookie with refreshToken", async () => {
+    const response = await agent.post("/sessions").send({
+      email,
+      password,
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.get("Set-Cookie")).toEqual([
+      expect.stringContaining("refreshToken="),
+    ]);
   });
 });
