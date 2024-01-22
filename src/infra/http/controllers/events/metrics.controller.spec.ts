@@ -16,6 +16,7 @@ describe("Metrics Events Controller", () => {
 
   beforeAll(async () => {
     await app.ready();
+    app.server.listen(0);
 
     const createFakeUserFn = createFakeUserFactory(app);
     const createFakeAuthorizationFn = createFakeAuthorizationFactory(app);
@@ -26,9 +27,9 @@ describe("Metrics Events Controller", () => {
 
     createFakeLocationFn = createFakeLocationFactory(app, authorization);
 
-    //create 20 locations
+    //create locations
     const locations = await Promise.all(
-      Array.from({ length: 20 }).map(() =>
+      Array.from({ length: 50 }).map(() =>
         createFakeLocationFn(
           fakeLocationFactory({
             //random coordinates at 1.11 km distance
