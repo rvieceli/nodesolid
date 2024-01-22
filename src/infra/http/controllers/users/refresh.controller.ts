@@ -1,4 +1,5 @@
 import { getUserProfileUserCaseFactory } from "@/core/use-cases/get-user-profile.use-case.factory";
+import { SignPayloadType } from "@fastify/jwt";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export async function refreshToken(
@@ -11,9 +12,14 @@ export async function refreshToken(
     request.user.sub,
   );
 
+  const payload = {
+    sub: user.id,
+    role: user.role,
+  } satisfies SignPayloadType;
+
   const [token, refreshToken] = await Promise.all([
-    reply.jwtSign({ sub: user.id }),
-    reply.refreshTokenJwtSign({ sub: user.id }),
+    reply.jwtSign(payload),
+    reply.refreshTokenJwtSign(payload),
   ]);
 
   return reply

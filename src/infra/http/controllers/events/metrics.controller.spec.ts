@@ -6,26 +6,30 @@ import {
   createFakeLocationFactory,
   fakeLocationFactory,
 } from "../../test/fake-location.factory";
-import { createFakeUserFactory } from "../../test/fake-user.factory";
-import { createFakeAuthorizationFactory } from "../../test/fake-authenticate.factory";
 import { faker } from "@faker-js/faker";
+import {
+  createAndAuthenticateAdmin,
+  createAndAuthenticateUser,
+} from "../../test/create-and-authenticate-user.e2e";
 
 describe("Metrics Events Controller", () => {
-  let authorization = "";
+  let adminToken = "";
+  let memberToken = "";
   let createFakeLocationFn: CreateFakeLocationFactoryFn;
 
   beforeAll(async () => {
     await app.ready();
     app.server.listen(0);
 
-    const createFakeUserFn = createFakeUserFactory(app);
-    const createFakeAuthorizationFn = createFakeAuthorizationFactory(app);
+    memberToken = await createAndAuthenticateUser(app, {
+      email: "member@events-metrics-controller.com",
+    });
 
-    const auth = await createFakeAuthorizationFn(await createFakeUserFn());
+    adminToken = await createAndAuthenticateAdmin(app, {
+      email: "admin@events-metrics-controller.com",
+    });
 
-    authorization = `Bearer ${auth.token}`;
-
-    createFakeLocationFn = createFakeLocationFactory(app, authorization);
+    createFakeLocationFn = createFakeLocationFactory(app, adminToken);
 
     //create locations
     const locations = await Promise.all(
@@ -40,20 +44,18 @@ describe("Metrics Events Controller", () => {
       ),
     );
 
-    //create 10 users
-    const users = await Promise.all(
+    //create users
+    const usersTokens = await Promise.all(
       Array.from({ length: 10 }).map(async (_, idx) =>
-        createFakeAuthorizationFn(
-          await createFakeUserFn({
-            email: `${faker.internet.userName()}_${idx}@${faker.internet.domainName()}`,
-          }),
-        ),
+        createAndAuthenticateUser(app, {
+          email: `${faker.internet.userName()}_${idx}@${faker.internet.domainName()}`,
+        }),
       ),
     );
 
     //check-in all users in random locations
     await Promise.all(
-      users.map((user) => {
+      usersTokens.map((token) => {
         const location = faker.helpers.arrayElement(locations);
 
         return request(app.server)
@@ -62,7 +64,7 @@ describe("Metrics Events Controller", () => {
             latitude: location.coordinates.lat,
             longitude: location.coordinates.lng,
           })
-          .set("Authorization", `Bearer ${user.token}`);
+          .set("Authorization", `Bearer ${token}`);
       }),
     );
   });
@@ -85,7 +87,7 @@ describe("Metrics Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     const eventId = create.body.event.id;
 
@@ -95,12 +97,13 @@ describe("Metrics Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .expect(200)
+      .set("Authorization", adminToken);
 
     const metrics = await request(app.server)
       .get(`/events/metrics`)
       .send()
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(metrics.body).toMatchObject({
       count: 1,

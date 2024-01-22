@@ -1,16 +1,26 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../../app";
-import { createAndAuthenticateUser } from "../../test/create-and-authenticate-user.e2e";
+import {
+  createAndAuthenticateAdmin,
+  createAndAuthenticateUser,
+} from "../../test/create-and-authenticate-user.e2e";
 import { fakeLocationFactory } from "../../test/fake-location.factory";
 
 describe("Create Location Controller", () => {
-  let authorization = "";
+  let adminToken = "";
+  let memberToken = "";
 
   beforeAll(async () => {
     await app.ready();
 
-    authorization = await createAndAuthenticateUser(app);
+    memberToken = await createAndAuthenticateUser(app, {
+      email: "member@create-location-controller.com",
+    });
+
+    adminToken = await createAndAuthenticateAdmin(app, {
+      email: "admin@create-location-controller.com",
+    });
   });
 
   afterAll(async () => {
@@ -27,7 +37,7 @@ describe("Create Location Controller", () => {
         latitude,
         longitude,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", adminToken);
 
     expect(responseCreate.statusCode).toBe(201);
     expect(responseCreate.body).toMatchObject({
@@ -38,6 +48,18 @@ describe("Create Location Controller", () => {
           lng: longitude,
         },
       },
+    });
+  });
+
+  it("should not be able to create a location as a Member user", async () => {
+    const response = await request(app.server)
+      .post("/locations")
+      .send() // body does matter
+      .set("Authorization", memberToken);
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toMatchObject({
+      error: "ForbiddenException",
     });
   });
 

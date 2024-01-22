@@ -1,7 +1,10 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { app } from "../../app";
-import { createAndAuthenticateUser } from "../../test/create-and-authenticate-user.e2e";
+import {
+  createAndAuthenticateAdmin,
+  createAndAuthenticateUser,
+} from "../../test/create-and-authenticate-user.e2e";
 import {
   CreateFakeLocationFactoryFn,
   createFakeLocationFactory,
@@ -9,14 +12,21 @@ import {
 } from "../../test/fake-location.factory";
 
 describe("Search Nearby Location Controller", () => {
-  let authorization = "";
+  let memberToken = "";
   let createFakeLocationFn: CreateFakeLocationFactoryFn;
 
   beforeAll(async () => {
     await app.ready();
 
-    authorization = await createAndAuthenticateUser(app);
-    createFakeLocationFn = createFakeLocationFactory(app, authorization);
+    memberToken = await createAndAuthenticateUser(app, {
+      email: "member@search-nearby-location-controller.com",
+    });
+
+    const adminToken = await createAndAuthenticateAdmin(app, {
+      email: "admin@search-nearby-location-controller.com",
+    });
+
+    createFakeLocationFn = createFakeLocationFactory(app, adminToken);
 
     // create 20 locations before running tests
     const items = Array.from({ length: 20 }).map(() =>
@@ -52,7 +62,7 @@ describe("Search Nearby Location Controller", () => {
     const response = await request(app.server)
       .get(`/locations/nearby?${params.toString()}`)
       .send()
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toMatchObject({
@@ -75,7 +85,7 @@ describe("Search Nearby Location Controller", () => {
     const response = await request(app.server)
       .get(`/locations/nearby?${params.toString()}`)
       .send()
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toMatchObject({

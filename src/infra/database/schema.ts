@@ -7,6 +7,7 @@ import {
   varchar,
   decimal,
   timestamp,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 const generatedConcat = customType<{
@@ -24,6 +25,8 @@ const generatedConcat = customType<{
   },
 });
 
+export const roleEnum = pgEnum("role", ["ADMIN", "MEMBER"]);
+
 export const users = pgTable("users", {
   id: uuid("id")
     .primaryKey()
@@ -31,7 +34,7 @@ export const users = pgTable("users", {
   name: varchar("name").notNull(),
   email: varchar("email").notNull().unique(),
   passwordHash: varchar("password_hash").notNull(),
-
+  role: roleEnum("role").notNull().default("MEMBER"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

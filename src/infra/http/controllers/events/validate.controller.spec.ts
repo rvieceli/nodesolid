@@ -9,22 +9,22 @@ import {
 import { createFakeUserFactory } from "../../test/fake-user.factory";
 import { createFakeAuthorizationFactory } from "../../test/fake-authenticate.factory";
 import { randomUUID } from "crypto";
+import { createAndAuthenticateAdmin } from "../../test/create-and-authenticate-user.e2e";
 
 describe("Validate Events Controller", () => {
-  let authorization = "";
-  let userId = "";
+  let adminToken = "";
+  let memberToken = "";
+  let memberId = "";
   let createFakeLocationFn: CreateFakeLocationFactoryFn;
 
   beforeAll(async () => {
     await app.ready();
 
-    const user = await createFakeUserFactory(app)();
-    const auth = await createFakeAuthorizationFactory(app)(user);
+    adminToken = await createAndAuthenticateAdmin(app, {
+      email: "admin@validate-events-controller.com",
+    });
 
-    userId = auth.userId;
-    authorization = `Bearer ${auth.token}`;
-
-    createFakeLocationFn = createFakeLocationFactory(app, authorization);
+    createFakeLocationFn = createFakeLocationFactory(app, adminToken);
 
     await Promise.all(
       Array.from({ length: 20 }).map(() =>
@@ -37,6 +37,14 @@ describe("Validate Events Controller", () => {
         ),
       ),
     );
+
+    const user = await createFakeUserFactory(app)({
+      email: "member@validate-events-controller.com",
+    });
+    const auth = await createFakeAuthorizationFactory(app)(user);
+
+    memberId = auth.userId;
+    memberToken = `Bearer ${auth.token}`;
   });
 
   afterAll(async () => {
@@ -57,7 +65,7 @@ describe("Validate Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     const eventId = create.body.event.id;
 
@@ -67,12 +75,12 @@ describe("Validate Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", adminToken);
 
     expect(validate.statusCode).toBe(200);
     expect(validate.body).toMatchObject({
       event: {
-        userId,
+        userId: memberId,
         locationId: location.id,
       },
     });
@@ -89,11 +97,26 @@ describe("Validate Events Controller", () => {
         latitude: -27.1066108,
         longitude: -109.2523168,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", adminToken);
 
     expect(response.statusCode).toBe(404);
     expect(response.body).toMatchObject({
       error: "ResourceNotFoundException",
+    });
+  });
+
+  it("should not be able to validate as a Member user", async () => {
+    const response = await request(app.server)
+      .patch(`/events/${randomUUID()}/validate`)
+      .send({
+        latitude: -27.1066108,
+        longitude: -109.2523168,
+      })
+      .set("Authorization", memberToken);
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toMatchObject({
+      error: "ForbiddenException",
     });
   });
 

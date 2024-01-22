@@ -6,25 +6,24 @@ import {
   createFakeLocationFactory,
   fakeLocationFactory,
 } from "../../test/fake-location.factory";
+import { randomUUID } from "node:crypto";
 import { createFakeUserFactory } from "../../test/fake-user.factory";
 import { createFakeAuthorizationFactory } from "../../test/fake-authenticate.factory";
-import { randomUUID } from "crypto";
+import { createAndAuthenticateAdmin } from "../../test/create-and-authenticate-user.e2e";
 
 describe("Create Events Controller", () => {
-  let authorization = "";
-  let userId = "";
+  let memberToken = "";
+  let memberId = "";
   let createFakeLocationFn: CreateFakeLocationFactoryFn;
 
   beforeAll(async () => {
     await app.ready();
 
-    const user = await createFakeUserFactory(app)();
-    const auth = await createFakeAuthorizationFactory(app)(user);
+    const adminToken = await createAndAuthenticateAdmin(app, {
+      email: "admin@create-events-controller.com",
+    });
 
-    userId = auth.userId;
-    authorization = `Bearer ${auth.token}`;
-
-    createFakeLocationFn = createFakeLocationFactory(app, authorization);
+    createFakeLocationFn = createFakeLocationFactory(app, adminToken);
 
     await Promise.all(
       Array.from({ length: 20 }).map(() =>
@@ -37,6 +36,14 @@ describe("Create Events Controller", () => {
         ),
       ),
     );
+
+    const user = await createFakeUserFactory(app)({
+      email: "member@create-events-controller.com",
+    });
+    const auth = await createFakeAuthorizationFactory(app)(user);
+
+    memberId = auth.userId;
+    memberToken = `Bearer ${auth.token}`;
   });
 
   afterAll(async () => {
@@ -57,12 +64,12 @@ describe("Create Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(responseCreate.statusCode).toBe(201);
     expect(responseCreate.body).toMatchObject({
       event: {
-        userId,
+        userId: memberId,
         locationId: location.id,
         validatedAt: null,
       },
@@ -83,7 +90,7 @@ describe("Create Events Controller", () => {
         latitude: -27.1066108,
         longitude: -109.2523168,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(response.statusCode).toBe(400);
   });
@@ -95,7 +102,7 @@ describe("Create Events Controller", () => {
         latitude: -27.1066108,
         longitude: -109.2523168,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(response.statusCode).toBe(404);
   });

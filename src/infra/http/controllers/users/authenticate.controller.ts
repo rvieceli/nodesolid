@@ -1,6 +1,7 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import z from "zod";
 import { authenticateUserCaseFactory } from "@/core/use-cases/authenticate.use-case.factory";
+import { SignPayloadType } from "@fastify/jwt";
 
 const bodySchema = z
   .object({
@@ -31,9 +32,14 @@ export async function authenticate(
     password,
   });
 
+  const payload = {
+    sub: user.id,
+    role: user.role,
+  } satisfies SignPayloadType;
+
   const [token, refreshToken] = await Promise.all([
-    reply.jwtSign({ sub: user.id }),
-    reply.refreshTokenJwtSign({ sub: user.id }),
+    reply.jwtSign(payload),
+    reply.refreshTokenJwtSign(payload),
   ]);
 
   return reply

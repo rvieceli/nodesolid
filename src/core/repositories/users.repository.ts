@@ -5,11 +5,14 @@ export type CreateUserInput = {
   passwordHash: string;
 };
 
+export type Role = "ADMIN" | "MEMBER";
+
 export interface UserData {
   id: string;
   name: string;
   email: string;
   passwordHash: string;
+  role: Role;
   createdAt: Date;
 }
 

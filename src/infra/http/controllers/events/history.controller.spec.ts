@@ -9,9 +9,14 @@ import {
 import { createFakeUserFactory } from "../../test/fake-user.factory";
 import { createFakeAuthorizationFactory } from "../../test/fake-authenticate.factory";
 import { faker } from "@faker-js/faker";
+import {
+  createAndAuthenticateAdmin,
+  createAndAuthenticateUser,
+} from "../../test/create-and-authenticate-user.e2e";
 
 describe("History Events Controller", () => {
-  let authorization = "";
+  let memberToken = "";
+  let adminToken = "";
   let createFakeLocationFn: CreateFakeLocationFactoryFn;
 
   beforeAll(async () => {
@@ -21,11 +26,15 @@ describe("History Events Controller", () => {
     const createFakeUserFn = createFakeUserFactory(app);
     const createFakeAuthorizationFn = createFakeAuthorizationFactory(app);
 
-    const auth = await createFakeAuthorizationFn(await createFakeUserFn());
+    memberToken = await createAndAuthenticateUser(app, {
+      email: "member@history-events-controller.com",
+    });
 
-    authorization = `Bearer ${auth.token}`;
+    adminToken = await createAndAuthenticateAdmin(app, {
+      email: "admin@history-events-controller.com",
+    });
 
-    createFakeLocationFn = createFakeLocationFactory(app, authorization);
+    createFakeLocationFn = createFakeLocationFactory(app, adminToken);
 
     //create locations
     const locations = await Promise.all(
@@ -85,7 +94,7 @@ describe("History Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     const eventId = create.body.event.id;
 
@@ -95,12 +104,12 @@ describe("History Events Controller", () => {
         latitude: -27.126155774243696,
         longitude: -109.42053861638183,
       })
-      .set("Authorization", authorization);
+      .set("Authorization", adminToken);
 
     const history = await request(app.server)
       .get(`/events/history`)
       .send()
-      .set("Authorization", authorization);
+      .set("Authorization", memberToken);
 
     expect(history.body).toMatchObject({
       items: [event.body.event],
