@@ -41,13 +41,15 @@ describe("GetUserMetricsUseCase", () => {
       });
     }
 
-    const { count } = await getUserMetricsUseCase.handler(userId);
+    const { count } = await getUserMetricsUseCase.handler({ userId });
 
     expect(count).toBe(COUNT);
   });
 
   it("should return an count=0 if there're no events for the user", async () => {
-    const { count } = await getUserMetricsUseCase.handler(randomUUID());
+    const { count } = await getUserMetricsUseCase.handler({
+      userId: randomUUID(),
+    });
 
     expect(count).toBe(0);
   });

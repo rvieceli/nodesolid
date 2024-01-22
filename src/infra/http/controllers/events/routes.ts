@@ -11,4 +11,5 @@ export async function eventsRoutes(app: FastifyInstance) {
 
   app.post("/:locationId/check-in", create);
   app.patch("/:eventId/validate", validate);
+  app.get("/metrics", metrics);
 }
